@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <cstdlib>
 #include <cctype>
+#include <algorithm>   // added for std::all_of
+#include <unistd.h>    // for geteuid()
 
 namespace fs = std::filesystem;
 
@@ -153,6 +155,10 @@ int main(int argc, char* argv[]) {
         return EXIT_SUCCESS;
     }
 
+    if (geteuid() != 0) {
+        std::cerr << "Error: This program must be run as root to modify brightness.\n";
+        return EXIT_FAILURE;
+    }
     if (!write_int_to_file(brightness_file, target_brightness)) {
         std::cerr << "Error: Unable to write new brightness to " << brightness_file << "\n";
         return EXIT_FAILURE;
