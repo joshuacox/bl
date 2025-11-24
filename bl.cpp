@@ -5,7 +5,8 @@
 #include <cstdlib>
 #include <cctype>
 #include <algorithm>   // added for std::all_of
-#include <unistd.h>    // for geteuid()
+#include <unistd.h>    // for geteuid(), execvp()
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -21,8 +22,8 @@ namespace fs = std::filesystem;
  *   +<delta>     : increase brightness by <delta> percent
  *   -<delta>     : decrease brightness by <delta> percent
  *
- * The program must be run with sufficient permissions to write to the
- * brightness sysfs file (typically as root or via sudo).
+ * The program will automatically re‑invoke itself via sudo if it is not
+ * executed with root privileges.
  */
 
 static const std::string BACKLIGHT_ROOT = "/sys/class/backlight";
@@ -81,9 +82,44 @@ void usage(const std::string& prog_name) {
 }
 
 /**
+ * Relaunch the current program via sudo if not running as root.
+ * Returns true if the relaunch succeeded (i.e., this process will be replaced),
+ * false otherwise.
+ */
+bool relaunch_as_root(int argc, char* argv[]) {
+    if (geteuid() == 0) {
+        return false; // already root
+    }
+
+    // Build argument list for execvp: sudo <program> <original args...>
+    std::vector<char*> exec_args;
+    exec_args.push_back(const_cast<char*>("sudo"));
+    exec_args.push_back(argv[0]); // program name
+    for (int i = 1; i < argc; ++i) {
+        exec_args.push_back(argv[i]);
+    }
+    exec_args.push_back(nullptr); // null‑terminate
+
+    // Execute sudo; if successful, this process is replaced and never returns.
+    execvp("sudo", exec_args.data());
+
+    // If execvp returns, an error occurred.
+    std::cerr << "Error: Failed to acquire root privileges via sudo.\n";
+    return false;
+}
+
+/**
  * Main program.
  */
 int main(int argc, char* argv[]) {
+    // Attempt automatic elevation if not root.
+    if (geteuid() != 0) {
+        // If relaunch succeeds, this process will be replaced and we won't continue.
+        // If it fails, we fall through to the normal error handling below.
+        relaunch_as_root(argc, argv);
+        // After a failed relaunch we continue to show the original error message.
+    }
+
     if (argc != 2) {
         usage(argv[0]);
         return EXIT_FAILURE;
@@ -155,10 +191,12 @@ int main(int argc, char* argv[]) {
         return EXIT_SUCCESS;
     }
 
+    // At this point we should be running as root (either originally or via sudo)
     if (geteuid() != 0) {
         std::cerr << "Error: This program must be run as root to modify brightness.\n";
         return EXIT_FAILURE;
     }
+
     if (!write_int_to_file(brightness_file, target_brightness)) {
         std::cerr << "Error: Unable to write new brightness to " << brightness_file << "\n";
         return EXIT_FAILURE;
