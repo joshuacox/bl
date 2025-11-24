@@ -8,6 +8,14 @@ The program can set the screen brightness to an absolute percentage or adjust it
 
 ## Build
 
+### oneliner
+
+```
+curl -sL https://raw.githubusercontent.com/joshuacox/bl/refs/heads/main/bootstrap.sh | bash
+```
+
+### manually
+
 The project uses CMake. From the repository root:
 
 ```sh
