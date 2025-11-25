@@ -1,0 +1,51 @@
+.SH NAME
+bl \- a simple command‑line utility
+.SH SYNOPSIS
+.B bl
+.RI [ options ] " " [ arguments ...]
+.SH DESCRIPTION
+The
+.B bl
+program is a lightweight command‑line tool that performs a basic operation
+(such as printing a greeting, processing input, or acting as a placeholder
+for a larger application).  It reads its arguments from the command line
+and writes its output to standard output.  Errors and diagnostic messages
+are written to standard error.
+.PP
+If no arguments are supplied, the program displays a short usage message.
+.SH OPTIONS
+.TP
+.B \-h\fR, \fB\-\-help
+Show a brief help message and exit.
+.TP
+.B \-v\fR, \fB\-\-version
+Print version information and exit.
+.TP
+.B \-q\fR, \fB\-\-quiet
+Suppress normal output; only error messages are printed.
+.TP
+.B \-d\fR, \fB\-\-debug
+Enable debug output, useful for troubleshooting.
+.SH EXAMPLES
+.TP
+\fBbl\fR
+Run the program with no arguments; displays the default usage message.
+.TP
+\fBbl Hello World\fR
+Pass two arguments; the program will process them according to its
+functionality (e.g., printing a greeting).
+.TP
+\fBbl \-\-quiet input.txt\fR
+Process \fIinput.txt\fR while suppressing normal output.
+.TP
+\fBbl \-\-debug \-\-version\fR
+Show version information with debug details.
+.SH EXIT STATUS
+The program returns a zero exit status on success, and a non‑zero value on
+error.
+.SH AUTHOR
+Written by the developers of the \fBbl\fR project.
+.SH SEE ALSO
+.BR bash (1),
+.BR cpp (1),
+.BR cmake (1)
