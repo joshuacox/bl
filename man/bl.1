@@ -1,0 +1,77 @@
+.SH NAME
+bl \- command‑line utility to get or set screen brightness on Linux systems
+
+.SH SYNOPSIS
+.B bl
+.RI [ options ] " <percentage>"
+.br
+.B bl
+.RI [ options ] " +<delta>"
+.br
+.B bl
+.RI [ options ] " -<delta>"
+
+.SH DESCRIPTION
+\fBbl\fP is a small helper program that manipulates the backlight brightness
+through the Linux sysfs interface (\fI/sys/class/backlight\fP).  It can set an
+absolute brightness level or adjust the current level by a relative percentage.
+
+The program automatically re‑invokes itself via \fBsudo\fP if it is not run
+with root privileges, because writing to the backlight sysfs files requires
+elevated permissions.
+
+.SH OPTIONS
+No command‑line options are defined.  The first (and only) argument determines
+the operation to perform:
+
+.TP
+\fB<number>\fP
+Set the brightness to an absolute percentage of the maximum brightness.
+The value must be an integer between 0 and 100.  Values outside this range
+are clamped to the nearest bound.
+
+.TP
+\fB+<number>\fP
+Increase the current brightness by the given percentage of the maximum
+brightness.
+
+.TP
+\fB-<number>\fP
+Decrease the current brightness by the given percentage of the maximum
+brightness.
+
+.SH EXAMPLES
+.TP
+\fBbl 50\fP
+Set the brightness to 50 % of the maximum value.
+
+.TP
+\fBbl +10\fP
+Raise the current brightness by 10 % of the maximum value.
+
+.TP
+\fBbl -20\fP
+Lower the current brightness by 20 % of the maximum value.
+
+.SH EXIT STATUS
+.TP
+0
+Success – the brightness was set (or already at the requested level).
+.TP
+1
+Failure – an error occurred (invalid argument, missing backlight device,
+or inability to obtain root privileges).
+
+.SH FILES
+.TP
+\fI/sys/class/backlight/*/brightness\fP
+Current brightness value (read/write, requires root).
+.TP
+\fI/sys/class/backlight/*/max_brightness\fP
+Maximum possible brightness value (read‑only).
+
+.SH SEE ALSO
+\fBsudo\fP(8), \fBsysfs\fP(5)
+
+.SH AUTHOR
+Written by the maintainer of the \fBbl\fP utility.
